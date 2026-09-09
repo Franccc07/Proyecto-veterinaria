@@ -1,20 +1,21 @@
 package com.example.Veterinaria.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "propietarios")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 
 public class Propietario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     private String nombre;
@@ -22,8 +23,9 @@ public class Propietario {
     private String telefono;
     private String correo;
 
-    // 1 Propietario puede tener muchas Mascotas
-    @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("propietario") // Detiene el bucle hacia Mascota
+    @Schema(hidden = true) // Oculta este campo del JSON de prueba en Swagger POST
     private List<Mascota> mascotas;
 
 

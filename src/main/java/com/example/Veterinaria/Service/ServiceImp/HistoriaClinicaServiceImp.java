@@ -7,6 +7,7 @@ import com.example.Veterinaria.Repository.HistoriaClinicaRepository;
 import com.example.Veterinaria.Repository.MascotaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,28 +19,28 @@ public class HistoriaClinicaServiceImp implements HistoriaClinicaService {
     private final MascotaRepository mascotaRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<HistoriaClinica> listarTodas() {
         return historiaClinicaRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public HistoriaClinica buscarPorId(Long id) {
         return historiaClinicaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada con el ID: " + id));
     }
 
     @Override
+    @Transactional
     public HistoriaClinica crear(HistoriaClinica historia, Long mascotaId) {
-        // Buscamos la mascota que tendrá esta historia clínica (Relación 1:1)
         Mascota mascota = mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada con el ID: " + mascotaId));
 
-        // Validamos que la mascota no tenga ya otra historia clínica creada
         if (mascota.getHistoriaClinica() != null) {
             throw new RuntimeException("La mascota con ID " + mascotaId + " ya tiene una historia clínica registrada.");
         }
 
-        // Seteamos la relación bidireccional
         historia.setMascota(mascota);
         mascota.setHistoriaClinica(historia);
 
@@ -47,6 +48,7 @@ public class HistoriaClinicaServiceImp implements HistoriaClinicaService {
     }
 
     @Override
+    @Transactional
     public HistoriaClinica actualizar(Long id, HistoriaClinica historiaDetalles) {
         HistoriaClinica historiaExistente = buscarPorId(id);
 
@@ -58,10 +60,10 @@ public class HistoriaClinicaServiceImp implements HistoriaClinicaService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         HistoriaClinica historia = buscarPorId(id);
 
-        // Rompemos la relación con la mascota antes de borrar para evitar conflictos
         if (historia.getMascota() != null) {
             historia.getMascota().setHistoriaClinica(null);
         }

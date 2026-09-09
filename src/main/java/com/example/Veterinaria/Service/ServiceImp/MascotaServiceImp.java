@@ -9,6 +9,7 @@ import com.example.Veterinaria.Repository.VeterinarioRepository;
 import com.example.Veterinaria.Service.MascotaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,17 +22,20 @@ public class MascotaServiceImp implements MascotaService {
     private final VeterinarioRepository veterinarioRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Mascota> listarTodas() {
         return mascotaRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Mascota buscarPorId(Long id) {
         return mascotaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada con el ID: " + id));
     }
 
     @Override
+    @Transactional
     public Mascota guardar(Mascota mascota, Long propietarioId) {
         Propietario propietario = propietarioRepository.findById(propietarioId)
                 .orElseThrow(() -> new RuntimeException("Propietario no encontrado con el ID: " + propietarioId));
@@ -41,6 +45,7 @@ public class MascotaServiceImp implements MascotaService {
     }
 
     @Override
+    @Transactional
     public Mascota actualizar(Long id, Mascota mascotaDetalles) {
         Mascota mascotaExistente = buscarPorId(id);
 
@@ -54,17 +59,20 @@ public class MascotaServiceImp implements MascotaService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         Mascota mascota = buscarPorId(id);
         mascotaRepository.delete(mascota);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Mascota> buscarPorPropietario(Long propietarioId) {
         return mascotaRepository.findByPropietarioId(propietarioId);
     }
 
     @Override
+    @Transactional
     public Mascota asignarVeterinario(Long mascotaId, Long veterinarioId) {
         Mascota mascota = buscarPorId(mascotaId);
         Veterinario veterinario = veterinarioRepository.findById(veterinarioId)
@@ -76,4 +84,6 @@ public class MascotaServiceImp implements MascotaService {
 
         return mascotaRepository.save(mascota);
     }
+
+
 }

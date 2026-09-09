@@ -5,47 +5,50 @@ import com.example.Veterinaria.Repository.PropietarioRepository;
 import com.example.Veterinaria.Service.PropietarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PropietarioServiceImp implements PropietarioService {
-    private final PropietarioRepository propietarioRepository;
+
+    private final PropietarioRepository repository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Propietario> listarTodos() {
-        return propietarioRepository.findAll();
+        return repository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Propietario buscarPorId(Long id) {
-        return propietarioRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Propietario no encontrado con el ID: " + id));
     }
 
     @Override
+    @Transactional
     public Propietario guardar(Propietario propietario) {
-        return propietarioRepository.save(propietario);
+        return repository.save(propietario);
     }
 
     @Override
-    public Propietario actualizar(Long id, Propietario propietarioDetalles) {
-        // Buscamos si existe el propietario antes de actualizar
-        Propietario propietarioExistente = buscarPorId(id);
-
-        // Actualizamos sus campos básicos
-        propietarioExistente.setNombre(propietarioDetalles.getNombre());
-        propietarioExistente.setDocumento(propietarioDetalles.getDocumento());
-        propietarioExistente.setTelefono(propietarioDetalles.getTelefono());
-        propietarioExistente.setCorreo(propietarioDetalles.getCorreo());
-
-        return propietarioRepository.save(propietarioExistente);
+    @Transactional
+    public Propietario actualizar(Long id, Propietario propietarioDatos) {
+        Propietario actual = buscarPorId(id);
+        actual.setNombre(propietarioDatos.getNombre());
+        actual.setDocumento(propietarioDatos.getDocumento());
+        actual.setTelefono(propietarioDatos.getTelefono());
+        actual.setCorreo(propietarioDatos.getCorreo());
+        return repository.save(actual);
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         Propietario propietario = buscarPorId(id);
-        propietarioRepository.delete(propietario);
+        repository.delete(propietario);
     }
 }

@@ -2,23 +2,22 @@ package com.example.Veterinaria.Entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "historias_clinicas")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class HistoriaClinica {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
     @Column(name = "fecha_apertura")
@@ -33,5 +32,6 @@ public class HistoriaClinica {
     // 1 Historia Clínica pertenece a 1 única Mascota (Clave Foránea aquí)
     @OneToOne
     @JoinColumn(name = "mascota_id", nullable = false, unique = true)
+    @JsonIgnoreProperties("historiaClinica")
     private Mascota mascota;
 }
